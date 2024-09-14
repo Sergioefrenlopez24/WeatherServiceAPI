@@ -10,26 +10,22 @@ namespace WeatherServiceAPI.Controllers
     {
         private readonly Operations _operations;
         public ClientController(IConfiguration configuration) {
-            _operations = new Operations(configuration["URLWeather"]);            
+            _operations = new Operations(configuration["URLWeather"], configuration["Parameters"]);            
 
         }
         [HttpGet]
         [Route("consumir")]
-        public async Task<string> consumirAsync([FromQuery] float latitude, float longitude)
+        public async Task<WeatherData> consumirAsync([FromQuery] float latitude, float longitude)
         {
             Coordinates coordinates = new Coordinates();
+            WeatherData weatherData = new WeatherData();
             coordinates.latitude = latitude;
             coordinates.longitude = longitude;
-            try
-            {    
-                var result = await _operations.ExtractData(coordinates.latitude, coordinates.longitude);
-                return result;
+              
+                weatherData = await _operations.ExtractDataFromMongo(coordinates.latitude, coordinates.longitude);
+                return weatherData;
 
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
+            
 
         }
     }
