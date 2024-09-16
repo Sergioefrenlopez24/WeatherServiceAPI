@@ -10,23 +10,46 @@ namespace WeatherServiceAPI.Controllers
     {
         private readonly Operations _operations;
         public ClientController(IConfiguration configuration) {
-            _operations = new Operations(configuration["URLWeather"], configuration["Parameters"]);            
+            _operations = new Operations(
+                configuration["URLWeather"], 
+                configuration["Parameters"], 
+                configuration["DBConnection"],
+                configuration["DBname"],
+                configuration["CollectionName"],
+                configuration["URLCity"], 
+                configuration["ApiKey"]         
+            );            
 
         }
         [HttpGet]
-        [Route("consumir")]
-        public async Task<WeatherData> consumirAsync([FromQuery] float latitude, float longitude)
+        [Route("ForecastByCoordinates")]
+        public async Task<IActionResult> consumirAsync([FromQuery] double latitude, double longitude)
         {
-            Coordinates coordinates = new Coordinates();
-            WeatherData weatherData = new WeatherData();
-            coordinates.latitude = latitude;
-            coordinates.longitude = longitude;
-              
-                weatherData = await _operations.ExtractDataFromMongo(coordinates.latitude, coordinates.longitude);
-                return weatherData;
-
-            
-
+            Coordinates coordinates = new ();
+            GeneralResponse generalResponse = new ();
+            try
+            {
+                coordinates.latitude = latitude;
+                coordinates.longitude = longitude;
+                generalResponse = await _operations.ExtractData(coordinates);
+                return Ok(generalResponse);
+            }
+            catch (Exception ex) {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("ForecastByCity")]
+        public async Task<IActionResult> consumirCiudad([FromQuery] string ciudad)
+        {
+            try
+            {
+                var response = await _operations.ConsumirCiudad(ciudad);
+                return Ok(response);
+            }
+            catch (Exception ex) {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

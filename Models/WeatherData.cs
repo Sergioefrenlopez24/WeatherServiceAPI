@@ -11,7 +11,7 @@ namespace WeatherServiceAPI.Controllers.Models
         public int utc_offset_seconds { get; set; }
         public string timezone { get; set; }
         public string timezone_abbreviation { get; set; }
-        public int elevation { get; set; }
+        public double elevation { get; set; }
         public HourlyUnits hourly_units { get; set; }
         public HourlyData hourly { get; set; }
         public DailyUnits daily_units { get; set; }
@@ -44,5 +44,13 @@ namespace WeatherServiceAPI.Controllers.Models
     {
         public List<string> time { get; set; }
         public List<string> sunrise { get; set; }
+    }
+    public class WeatherDataList<L>
+    {
+        public List<L>? weatherDataS { get; set; }
+        public WeatherDataList()
+        {
+            weatherDataS = new List<L>();
+        }
     }
 }
