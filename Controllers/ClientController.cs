@@ -3,52 +3,60 @@ using WeatherServiceAPI.Controllers.Models;
 using Microsoft.Extensions.Configuration;
 using WeatherServiceAPI.Utils;
 using WeatherServiceAPI.Models;
+using WeatherServiceAPI.Busines;
 
 namespace WeatherServiceAPI.Controllers
 {
-    public class ClientController : ControllerBase
+    public class ForecastController : ControllerBase
     {
-        private readonly Operations _operations;
-        public ClientController(IConfiguration configuration) {
-            _operations = new Operations(
+        private readonly GetDataByCoordinates _getDataByCoordinates;
+
+        //constructor
+        public ForecastController(IConfiguration configuration) {
+            _getDataByCoordinates = new GetDataByCoordinates(
                 configuration["URLWeather"], 
-                configuration["Parameters"], 
                 configuration["DBConnection"],
                 configuration["DBname"],
                 configuration["CollectionName"],
-                configuration["URLCity"], 
-                configuration["ApiKey"]         
-            );            
-
+                configuration["URLCity"],
+                configuration["ApiKey"]
+            );
         }
         [HttpGet]
         [Route("ForecastByCoordinates")]
-        public async Task<IActionResult> consumirAsync([FromQuery] double latitude, double longitude)
+        public async Task<GeneralResponse<WeatherData>> consumirAsync([FromQuery] double latitude, double longitude)
         {
             Coordinates coordinates = new ();
-            GeneralResponse generalResponse = new ();
+            GeneralResponse<WeatherData> generalResponse = new ();
             try
             {
+                //set coordinates
                 coordinates.latitude = latitude;
                 coordinates.longitude = longitude;
-                generalResponse = await _operations.ExtractData(coordinates);
-                return Ok(generalResponse);
+                generalResponse = await _getDataByCoordinates.GetForecastData(coordinates);
+                return generalResponse;
             }
             catch (Exception ex) {
-                return StatusCode(500, ex.Message);
+                generalResponse.isSuccess = false;
+                generalResponse.message = ex.Message;
+                return generalResponse;
             }
         }
         [HttpGet]
-        [Route("ForecastByCity")]
-        public async Task<IActionResult> consumirCiudad([FromQuery] string ciudad)
+        [Route("ForecastByCityName")]
+        public async Task<GeneralResponse<WatherDataByCityList<WeatherDataByCity>>> consumirCiudad([FromQuery] string city)
         {
+            GeneralResponse<WatherDataByCityList<WeatherDataByCity>> generalResponse = new();
             try
             {
-                var response = await _operations.ConsumirCiudad(ciudad);
-                return Ok(response);
+                generalResponse = await _getDataByCoordinates.ForecastByCity(city);
+                return generalResponse;
             }
-            catch (Exception ex) {
-                return StatusCode(500, ex.Message);
+            catch (Exception ex)
+            {
+                generalResponse.isSuccess = false;
+                generalResponse.message = ex.Message;
+                return generalResponse;
             }
         }
     }

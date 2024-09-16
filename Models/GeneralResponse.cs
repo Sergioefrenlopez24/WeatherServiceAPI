@@ -13,8 +13,7 @@
         {
             isSuccess = status;
             message = msg;
-        }
-        
+        }        
     }
     public class GeneralResponse<T>
     {

@@ -45,12 +45,20 @@ namespace WeatherServiceAPI.Controllers.Models
         public List<string> time { get; set; }
         public List<string> sunrise { get; set; }
     }
-    public class WeatherDataList<L>
+    public class WeatherDataByCity
     {
-        public List<L>? weatherDataS { get; set; }
-        public WeatherDataList()
+        public string name { get; set; }
+        public string country { get; set; }
+        public string state { get; set; }
+        public string Origin { get; set; }
+        public WeatherData WeatherData { get; set; }
+    }
+    public class WatherDataByCityList<L>
+    {
+        public List<L> WeatherByCities { get; set; }
+        public WatherDataByCityList()
         {
-            weatherDataS = new List<L>();
+            WeatherByCities = new List<L>();
         }
     }
 }

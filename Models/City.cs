@@ -10,6 +10,9 @@
     }
     public class CityList<L>
     {
-        public List<City> Cities{ get; set; }
+        /// <summary>
+        /// List of cities 
+        /// </summary>
+        public List<L> Cities { get; set; }
     }
 }
